@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSpend AI | Transactions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">S</span>
+            <h2>SmartSpend <span>AI</span></h2>
+        </div>
+
+        <nav>
+            <a href="/" class="nav-link">▦ Dashboard</a>
+            <a href="/transactions" class="nav-link active">⇄ Transactions</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <p>SMARTSPEND AI</p>
+            <small>Intelligent Finance Management</small>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1>Transaction History</h1>
+                <p>Manage and monitor all your financial activities.</p>
+            </div>
+            <a href="/" class="secondary-btn">← Dashboard</a>
+        </header>
+
+        <section class="summary-grid">
+
+            <div class="summary-card balance-card">
+                <p>Total Transactions</p>
+                <h2 id="count">0</h2>
+                <span>Recorded activities</span>
+            </div>
+
+            <div class="summary-card">
+                <p>Total Income</p>
+                <h2 id="income">₹0</h2>
+                <span>Money received</span>
+            </div>
+
+            <div class="summary-card">
+                <p>Total Expenses</p>
+                <h2 id="expenses">₹0</h2>
+                <span>Money spent</span>
+            </div>
+
+        </section>
+
+        <section class="panel recent-panel">
+
+            <div class="panel-heading">
+                <div>
+                    <h2>All Transactions</h2>
+                    <p>AI categorized financial records</p>
+                </div>
+                <a href="/" class="view-all">+ Add Transaction</a>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="transaction-list">
+                        <tr>
+                            <td colspan="6">Loading transactions...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p id="message"></p>
+
+        </section>
+
+        <footer>
+            SmartSpend AI © 2026 | Intelligent Finance Management
+        </footer>
+
+    </main>
+</div>
+
+<script>
+const money = value => "₹" + Number(value || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+});
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+async function loadTransactions() {
+
+    const [transactionResponse, summaryResponse] = await Promise.all([
+        fetch("/api/transactions"),
+        fetch("/api/summary")
+    ]);
+
+    const transactions = await transactionResponse.json();
+    const summary = await summaryResponse.json();
+
+    document.getElementById("count").textContent = transactions.length;
+    document.getElementById("income").textContent = money(summary.income);
+    document.getElementById("expenses").textContent = money(summary.expenses);
+
+    const list = document.getElementById("transaction-list");
+
+    if (transactions.length === 0) {
+        list.innerHTML = `
+            <tr>
+                <td colspan="6">No transactions found. Add one from the dashboard.</td>
+            </tr>`;
+        return;
+    }
+
+    list.innerHTML = transactions.map(t => `
+        <tr>
+            <td>${escapeHTML(t.title)}</td>
+            <td>${escapeHTML(t.category)}</td>
+            <td>${escapeHTML(t.date)}</td>
+            <td>${escapeHTML(t.transaction_type)}</td>
+            <td class="${t.transaction_type === "income" ? "income-text" : "expense-text"}">
+                ${t.transaction_type === "income" ? "+" : "-"}${money(t.amount)}
+            </td>
+            <td>
+                <button class="delete-btn" data-id="${Number(t.id)}">
+                    Delete
+                </button>
+            </td>
+        </tr>
+    `).join("");
+
+    list.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", async () => {
+
+            if (!confirm("Delete this transaction?")) return;
+
+            const response = await fetch(
+                "/api/transactions/" + button.dataset.id,
+                { method: "DELETE" }
+            );
+
+            if (response.ok) {
+                document.getElementById("message").textContent =
+                    "Transaction deleted successfully!";
+                await loadTransactions();
+            }
+        });
+    });
+}
+
+loadTransactions();
+</script>
+
+</body>
+</html>

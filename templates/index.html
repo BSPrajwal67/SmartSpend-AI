@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSpend AI | Finance Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">S</span>
+            <h2>SmartSpend <span>AI</span></h2>
+        </div>
+
+        <nav>
+            <a href="/" class="nav-link active">▦ Dashboard</a>
+            <a href="/transactions" class="nav-link">⇄ Transactions</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <p>SMARTSPEND AI</p>
+            <small>Intelligent Finance Management</small>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1>Financial Dashboard</h1>
+                <p>Welcome back! Here's your financial overview.</p>
+            </div>
+            <div class="profile">👤 My Account</div>
+        </header>
+
+        <section class="welcome-banner">
+            <div>
+                <span class="tag">AI POWERED FINANCE</span>
+                <h2>Take control of your money.</h2>
+                <p>Track spending, understand your habits and grow your savings.</p>
+            </div>
+            <div class="banner-icon">💰</div>
+        </section>
+
+        <!-- SUMMARY CARDS -->
+        <section class="summary-grid">
+
+            <div class="summary-card balance-card">
+                <p>Total Balance</p>
+                <h2 id="balance">₹0.00</h2>
+                <span>Available balance</span>
+            </div>
+
+            <div class="summary-card">
+                <p>Total Income</p>
+                <h2 id="income">₹0.00</h2>
+                <span>Money received</span>
+            </div>
+
+            <div class="summary-card">
+                <p>Total Expenses</p>
+                <h2 id="expenses">₹0.00</h2>
+                <span>Money spent</span>
+            </div>
+
+        </section>
+
+        <!-- TRANSACTION FORM -->
+        <section class="content-grid">
+
+            <div class="panel transaction-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Add Transaction</h2>
+                        <p>Record your income or expenses</p>
+                    </div>
+                    <span>✚</span>
+                </div>
+
+                <form id="transaction-form">
+
+                    <label>Transaction Description</label>
+                    <input
+                        type="text"
+                        id="title"
+                        placeholder="e.g. Swiggy food order"
+                        required
+                    >
+
+                    <label>Amount (₹)</label>
+                    <input
+                        type="number"
+                        id="amount"
+                        placeholder="Enter amount"
+                        min="0.01"
+                        step="0.01"
+                        required
+                    >
+
+                    <label>Transaction Type</label>
+                    <select id="transaction_type">
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+
+                    <label>Date</label>
+                    <input type="date" id="date" required>
+
+                    <button type="submit" class="primary-btn">
+                        + Add Transaction
+                    </button>
+
+                    <p id="form-message"></p>
+
+                </form>
+            </div>
+
+            <!-- AI ADVISOR -->
+            <div class="panel ai-panel">
+                <div class="panel-heading">
+                    <div>
+                        <span class="tag">SMART AI</span>
+                        <h2>AI Financial Advisor</h2>
+                        <p>Personalized recommendations</p>
+                    </div>
+                    <span>🤖</span>
+                </div>
+
+                <div id="recommendations">
+                    <p>Loading AI recommendations...</p>
+                </div>
+
+                <button id="refresh-ai" class="secondary-btn">
+                    ↻ Refresh Insights
+                </button>
+            </div>
+
+        </section>
+
+        <!-- ANALYTICS -->
+        <section class="content-grid analytics-grid">
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Expense Analytics</h2>
+                        <p>Understand your spending categories</p>
+                    </div>
+                    <span>📊</span>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Financial Summary</h2>
+                        <p>Your current financial position</p>
+                    </div>
+                    <span>📈</span>
+                </div>
+
+                <div class="financial-info">
+                    <p>Total Income <strong id="summary-income">₹0.00</strong></p>
+                    <p>Total Expenses <strong id="summary-expenses">₹0.00</strong></p>
+                    <p>Remaining Balance <strong id="summary-balance">₹0.00</strong></p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RECENT TRANSACTIONS -->
+        <section class="panel recent-panel">
+
+            <div class="panel-heading">
+                <div>
+                    <h2>Recent Transactions</h2>
+                    <p>Your latest financial activities</p>
+                </div>
+                <a href="/transactions" class="view-all">View All →</a>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="transaction-list">
+                        <tr>
+                            <td colspan="6">Loading transactions...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <footer>
+            SmartSpend AI © 2026 | AI-Powered Personal Finance Management
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>
